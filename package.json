@@ -1,0 +1,40 @@
+{
+  "name": "generator",
+  "version": "0.0.0",
+  "private": true,
+  "config": {
+    "imageRepo": "mattgartner/express-gen",
+    "imageName": "express-generator2",
+    "imagePort": "3000"
+  },
+  "scripts": {
+    "start": "node ./bin/www",
+    "docker:build": "docker image build . -t $npm_package_config_imageRepo:$npm_package_version",
+    "postdocker:build": "npm run docker:tag",
+    "docker:tag": "docker image tag $npm_package_config_imageRepo:$npm_package_version $npm_package_config_imageRepo:latest",
+    "docker:run": "run-s -c docker:clean docker:runHelper",
+    "docker:runHelper": "docker run -e NODE_ENV=local --name $npm_package_config_imageName -d -p $npm_package_config_imagePort:3000 $npm_package_config_imageRepo",
+    "predocker:publish": "echo Attention! Ensure `docker login` is correct.",
+    "docker:publish": "docker image push $npm_package_config_imageRepo:$npm_package_version",
+    "postdocker:publish": "docker image push $npm_package_config_imageRepo:latest",
+    "docker:clean": "docker rm -f $npm_package_config_imageName",
+    "predocker:taillogs": "echo Web Server Logs:",
+    "docker:taillogs": "docker logs -f $npm_package_config_imageName",
+    "docker:open:mac": "echo Trying to launch on MacOS && sleep 2 && URL=http://localhost:$npm_package_config_imagePort && open $URL",
+    "docker:debugmessage": "echo Docker Debug Completed Successfully! Hit Ctrl+C to terminate log tailing.",
+    "predocker:debug": "run-s docker:build docker:run",
+    "docker:debug": "run-s -cs docker:open:mac docker:debugmessage docker:taillogs"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "http-errors": "~1.6.2",
+    "morgan": "~1.9.0",
+    "node-sass-middleware": "0.11.0",
+    "pug": "2.0.0-beta11"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.3"
+  }
+}
